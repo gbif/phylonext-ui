@@ -1,25 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+import * as React from "react";
+import ContextProvider from "./Components/hoc/ContextProvider";
 
-function App() {
+import { BrowserRouter as Router, useRoutes } from "react-router-dom";
+import MyRuns from "./MyRuns";
+import Home from "./Home";
+import Workflow from "./Workflow";
+import history from "./history";
+import "./App.css";
+
+const App = () => {
+  const routes = useRoutes([
+    { path: "/", element: <Home /> },
+    { path: "/run", element: <Workflow /> },
+    { path: "/run/:id", element: <Workflow /> },
+    { path: "/myruns", element: <MyRuns /> },
+  ]);
+
+  return routes;
+};
+
+const AppWrapper = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ContextProvider>
+      <Router history={history}>
+        <App />
+      </Router>
+    </ContextProvider>
   );
-}
+};
 
-export default App;
+export default AppWrapper;
