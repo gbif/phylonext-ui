@@ -1,18 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Steps, Progress, Row,Col, Timeline } from "antd";
+import { Progress, Row,Col, Timeline } from "antd";
 import { useParams } from "react-router-dom";
 import config from "../config";
 import axios from "axios";
 import withContext from "../Components/hoc/withContext";
-
-const { Step } = Steps;
+import { refreshLogin } from "../Auth/userApi";
 
 const PhyloNextJob = ({ setStep }) => {
   const [stdout, setStdout] = useState("");
-  const [stderr, setStderr] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [completed, setCompleted] = useState(false);
-  const [handle, setHandle] = useState(null);
   const [currentStep, setCurrentStep] = useState(null);
   const [steps, setSteps] = useState([]);
   let params = useParams();
@@ -21,6 +17,7 @@ const PhyloNextJob = ({ setStep }) => {
   useEffect(() => {
 
     let hdl;
+    let refreshUserHdl;
     const getData = async (hdl_) => {
       try {
         setLoading(true);
@@ -31,19 +28,15 @@ const PhyloNextJob = ({ setStep }) => {
           let processed = processStdout(res?.data?.stdout);
           setStdout(processed);
 
-          if (res?.data?.completed) {
-            setCompleted(true);
-            if (hdl_) {
-              clearInterval(hdl_);
-            }
-            /* if(steps.length > 0 && !steps.find(s => s.status === 'failed')){
-              setStep(2);
-
-            }  */
-            setStep(2);
-          }
+        }
+        if (res?.data?.completed) {
+          if (hdl_) {
+            clearInterval(hdl_);
+          }   
+          setStep(2);
         }
         setLoading(false);
+        
       } catch (error) {
         console.log(error);
         setLoading(false);
@@ -60,11 +53,13 @@ const PhyloNextJob = ({ setStep }) => {
       }
     };
     hdl = setInterval(() => getData(hdl), 1000);
-    setHandle(hdl);
-
+    refreshUserHdl = setInterval(refreshLogin, 900000);
     return () => {
       if (hdl) {
         clearInterval(hdl);
+      }
+      if (refreshUserHdl) {
+        clearInterval(refreshUserHdl);
       }
     };
   }, []);

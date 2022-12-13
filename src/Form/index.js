@@ -240,21 +240,62 @@ const PhyloNextForm = ({setStep, preparedTrees, user, logout}) => {
                 <InputNumber />
               </FormItem>
             </Panel>
-            <Panel header="Additional filtering and aggregation" key="4">
-              <FormItem
-                hasFeedback={h3resolution > 3 }
-                validateStatus={h3resolution> 3 ? "warning": null }
-                help={h3resolution > 3 ? "Be ware that higher values should only be applied for smaller geographical areas": null }
+            <Panel header="GBIF Occurrence filtering and aggregation" key="4">
+            <Form.Item
                 {...formItemLayout}
-                name="h3resolution"
-                label="H3 resolution"
-                /* extra="Pick a higher value for smaller areas" */
+                name="terrestrial"
+                label="Use Land polygon for removal of non-terrestrial occurrences"
+                extra="This will use the pipeline_data/Land_Buffered_025_dgr.RData file from the PhyloNext pipeline repository"
+                valuePropName="checked"
               >
-                 <Select defaultValue={2} style={{width: 100}} onChange={setH3resolution}>
-                    {[1,2,3,4].map(key => <Option key={key}>{key}</Option>)}
-                 </Select>
-                {/* <InputNumber /> */}
-              </FormItem>
+                <Checkbox />
+                
+              </Form.Item>
+              <Form.Item
+                {...formItemLayout}
+                name="rmcountrycentroids"
+                label="Remove data from polygons with country and province centroids"
+                extra="This will use the pipeline_data/CC_CountryCentroids_buf_1000m.RData file from the PhyloNext pipeline repository"
+                valuePropName="checked"
+              >
+                <Checkbox />
+                
+              </Form.Item>
+
+              <Form.Item
+                {...formItemLayout}
+                name="rmcountrycapitals"
+                label="Remove data from polygons with with country capitals"
+                extra="This will use the pipeline_data/CC_Capitals_buf_10000m.RData file from the PhyloNext pipeline repository"
+                valuePropName="checked"
+              >
+                <Checkbox />
+                
+              </Form.Item>
+
+              <Form.Item
+                {...formItemLayout}
+                name="rminstitutions"
+                label="Remove data from polygons with biological institutuions and museums"
+                extra="This will use the pipeline_data/CC_Institutions_buf_100m.RData file from the PhyloNext pipeline repository"
+                valuePropName="checked"
+              >
+                <Checkbox />
+                
+              </Form.Item>
+              <Form.Item
+                {...formItemLayout}
+                name="rmurban"
+                label="Remove data from polygons with urban areas"
+                extra="This will use the pipeline_data/CC_Urban.RData file from the PhyloNext pipeline repository"
+                valuePropName="checked"
+              >
+                <Checkbox />
+                
+              </Form.Item>
+              
+              
+
               <Form.Item
                 {...formItemLayout}
                 name="dbscan"
@@ -285,6 +326,25 @@ const PhyloNextForm = ({setStep, preparedTrees, user, logout}) => {
               >
                 <InputNumber />
               </FormItem>
+              
+                
+            </Panel>
+            <Panel header="Biodiverse settings" key="5">
+            <FormItem
+                hasFeedback={h3resolution > 3 }
+                validateStatus={h3resolution> 3 ? "warning": null }
+                help={h3resolution > 3 ? "Be ware that higher values should only be applied for smaller geographical areas": null }
+                {...formItemLayout}
+                name="h3resolution"
+                label="H3 resolution (Polygon size)"
+                /* extra="Pick a higher value for smaller areas" */
+              >
+                 <Select defaultValue={2} style={{width: 100}} onChange={setH3resolution}>
+                    {[1,2,3,4].map(key => <Option key={key}>{key}</Option>)}
+                 </Select>
+                {/* <InputNumber /> */}
+              </FormItem>
+
               <FormItem {...formItemLayout} name="randname" label="Randomisation name">
                 <Select >
                   {['rand_structured', 'rand_independent_swaps'].map((i) => (
@@ -292,7 +352,14 @@ const PhyloNextForm = ({setStep, preparedTrees, user, logout}) => {
                   ))}
                 </Select>
                 </FormItem>
-                
+                <FormItem
+                {...formItemLayout}
+                name="iterations"
+                label="Number of randomisation iterations (max 1000)"
+              >
+                <InputNumber max={1000} />
+              </FormItem>
+
             </Panel>
           </Collapse>
 

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Layout from "../Layout/Layout";
 import PageContent from "../Layout/PageContent";
-import {List, Button} from "antd"
+import {List, Button} from "antd";
+import { Doi } from "../Components/Doi";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import config from "../config";
@@ -49,7 +50,7 @@ const MyRuns = ({user, logout}) => {
     dataSource={runs}
     renderItem={(item) => <List.Item>
         <List.Item.Meta
-            title={<Button type="link" onClick={() => navigate(`/run/${item?.run}`)}>{moment(item?.started).format('LLL')}</Button>}
+            title={<><Button type="link" onClick={() => navigate(`/run/${item?.run}`)}>{moment(item?.started).format('LLL')}</Button> {item?.doi && <Doi id={item?.doi}/>}</>}
             description={getDescription(item)}
         > 
         </List.Item.Meta>

@@ -5,7 +5,20 @@ export const JWT_STORAGE_NAME = "phylonext_auth_token";
 
 export const axiosWithAuth = axios.create();
 
-
+axiosWithAuth.interceptors.response.use(
+  (res) => { 
+    // extend login
+    if(res?.headers?.token){
+      axiosWithAuth.defaults.headers.common["Authorization"] = `Bearer ${res?.headers?.token}`;
+      storeToken(res?.headers?.token)
+    }
+    return res;
+  });
+  
+const storeToken = (jwt) => {
+  sessionStorage.setItem(JWT_STORAGE_NAME, jwt);
+  localStorage.setItem(JWT_STORAGE_NAME, jwt);    
+}
 export const authenticate = async (username, password) => {
   return axios(`${config.authWebservice}/login`, {
     headers: {
@@ -14,14 +27,21 @@ export const authenticate = async (username, password) => {
   })
     .then((res) => {
       //  localStorage.setItem('col_plus_auth_token', res.data)
-      if(res?.data?.token)
-      axiosWithAuth.defaults.headers.common["Authorization"] = `Bearer ${res?.data?.token}`;
+      if(res?.data?.token){
+        axiosWithAuth.defaults.headers.common["Authorization"] = `Bearer ${res?.data?.token}`;
+      }
       return res?.data;
     })
    
 };
 
-
+export const refreshLogin = async () => {
+  try {
+    await axiosWithAuth.post(`${config.authWebservice}/whoami`)
+  } catch (err) {
+    logout()
+  }
+}
 
 export const logout = () => {
   localStorage.removeItem(JWT_STORAGE_NAME);

@@ -3,12 +3,13 @@ import Layout from "../Layout/Layout";
 import PageContent from "../Layout/PageContent";
 import { Space, Typography, Tabs, Button } from 'antd';
 import {DownloadOutlined} from "@ant-design/icons"
-
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Doi } from "../Components/Doi";
+import { useParams } from "react-router-dom";
 import config from "../config";
 import axios from "axios";
 import Iframe from 'react-iframe'
 import PipeLineDag from "./PipeLineDag";
+import CitationForm from "../Components/Citation/CitationModal";
 import Tree from "./Tree"
 const { Text, Link } = Typography;
 
@@ -16,7 +17,20 @@ const PhyloNextResults = () => {
   
 const [mapExists, setMapExists] = useState(false)
 const [activeKey, setActiveKey] = useState("1")
+const [run, setRun] = useState({})
+const [citationFormOpen, setCitationFormOpen ] = useState(false);
+
   let params = useParams();
+  const getRun = async () => {
+    try {
+      const res = await axios(
+        `${config.phylonextWebservice}/job/${params?.id}`
+      );
+      setRun(res?.data)
+    } catch (error) {
+      setRun({})  
+    }
+}
 
   useEffect(() => {
 
@@ -32,19 +46,27 @@ const [activeKey, setActiveKey] = useState("1")
         }
     }
     checkMapExists()
+    getRun()
   },[])
+  
+
   
 
 
   return (
-   
+   <>
+    <CitationForm jobid={params?.id} open={citationFormOpen} onCancel={()=> setCitationFormOpen(false)} onFinish={(r) => {setRun(r); setCitationFormOpen(false)}}/>
         <Tabs
     //defaultActiveKey={mapExists ? "1": "2"}
     activeKey={activeKey}
     onChange={setActiveKey}
     tabBarExtraContent={
       {
-        right: <Button href={`${config.phylonextWebservice}/job/${params?.id}/archive.zip`}>Download results <DownloadOutlined /></Button>
+        right: <>
+          {run?.doi && <>Cite: <Doi id={run?.doi}  /> </>}
+          {mapExists && !run?.doi &&  <Button onClick={() => setCitationFormOpen(true)}>Cite</Button> }
+          <Button style={{marginLeft: "10px"}} href={`${config.phylonextWebservice}/job/${params?.id}/archive.zip`}>Download results <DownloadOutlined /></Button>
+          </>
       }
     }
     items={[
@@ -86,6 +108,7 @@ const [activeKey, setActiveKey] = useState("1")
       },  */
     ]}
   />
+  </>
 
     
   );
