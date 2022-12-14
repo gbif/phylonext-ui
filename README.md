@@ -1,6 +1,6 @@
 # Getting Started with Create React App
 
-This project is a React web app that runs on top of the [PhyloNext WS](https://github.com/thomasstjerne/phylonext-ws) backend. This allows users to run the [PyloNext pipeline](https://github.com/vmikk/PhyloNext) from their browser. Finished runs can be regisered as a derived dataset in GBIF with a citable DOI.
+This project is a React web app that runs on top of the [PhyloNext WS](https://github.com/gbif/phylonext-ws) backend. This allows users to run the [PyloNext pipeline](https://github.com/vmikk/PhyloNext) from their browser. Finished runs can be regisered as a derived dataset in GBIF with a citable DOI.
 
 ## Available Scripts
 
