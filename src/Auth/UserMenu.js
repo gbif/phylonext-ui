@@ -1,7 +1,7 @@
 import React, { PureComponent } from "react";
 //import injectSheet from "react-jss";
 import { useNavigate } from "react-router-dom";
-import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import { LogoutOutlined, BarsOutlined } from "@ant-design/icons";
 import { Menu, Dropdown, Avatar, Modal, Button, Divider } from "antd";
 
 // Wrappers
@@ -51,7 +51,7 @@ const MenuContent = ({logout}) => {
     key="myruns"
     onClick={() => navigate('/myruns')}
   >
-    <LogoutOutlined /> Finished runs
+    <BarsOutlined /> Pipeline Runs
   </Menu.Item>
 </Menu>
 } 
