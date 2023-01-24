@@ -4,7 +4,7 @@ import { AutoComplete, Tag } from "antd";
 import config from "../config";
 const unauthorizedAxios = axios.create();
 
-const TaxonAutoComplete = ({ value, onChange, rank }) => {
+const TaxonAutoComplete = ({ value, onChange, rank, higherTaxonKey }) => {
   const [options, setOptions] = useState([]);
   const [searchText, setSearchText] = useState("")
   useEffect(() => {
@@ -15,10 +15,12 @@ const TaxonAutoComplete = ({ value, onChange, rank }) => {
     try {
       if (text) {
         const res = await unauthorizedAxios(
-          `${config.taxonSuggestUrl}?q=${text}&rank=${rank}`
+         // `${config.taxonSuggestUrl}?q=${text}&datasetKey=${config.gbifBackboneKey}&rank=${rank}`
+         `${config.taxonSearchUrl}?q=${text}&datasetKey=${config.gbifBackboneKey}&rank=${rank}${higherTaxonKey ? '&higherTaxonKey='+higherTaxonKey : ''}`
         );
         setOptions(
-          res?.data.map((t) => ({
+          res?.data?.results?.map((t) => ({
+            key: t.key,
             value: t.canonicalName,
             label: (
               <>

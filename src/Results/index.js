@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Layout from "../Layout/Layout";
 import PageContent from "../Layout/PageContent";
-import { Space, Typography, Tabs, Button } from 'antd';
+import { Popconfirm, Typography, Tabs, Button } from 'antd';
 import {DownloadOutlined} from "@ant-design/icons"
 import { Doi } from "../Components/Doi";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import config from "../config";
 import axios from "axios";
+import { axiosWithAuth } from "../Auth/userApi";
 import Iframe from 'react-iframe'
 import PipeLineDag from "./PipeLineDag";
 import CitationForm from "../Components/Citation/CitationModal";
@@ -19,7 +20,7 @@ const [mapExists, setMapExists] = useState(false)
 const [activeKey, setActiveKey] = useState("1")
 const [run, setRun] = useState({})
 const [citationFormOpen, setCitationFormOpen ] = useState(false);
-
+const navigate = useNavigate()
   let params = useParams();
   const getRun = async () => {
     try {
@@ -50,12 +51,22 @@ const [citationFormOpen, setCitationFormOpen ] = useState(false);
   },[])
   
 
-  
+  const deleteRun = async jobId => {
+    try {
+        await axiosWithAuth.delete(`${config.phylonextWebservice}/job/${jobId}`)
+        navigate("/myruns")
+        // console.log(res.data)
+    } catch (error) {
+        
+        console.log(error)
+    }
+}
 
 
   return (
    <>
-    <CitationForm jobid={params?.id} open={citationFormOpen} onCancel={()=> setCitationFormOpen(false)} onFinish={(r) => {setRun(r); setCitationFormOpen(false)}}/>
+    <CitationForm jobid={params?.id} defaultValues={run} open={citationFormOpen} onCancel={()=> setCitationFormOpen(false)} onFinish={(r) => {setRun(r); setCitationFormOpen(false)}}/>
+    
         <Tabs
     //defaultActiveKey={mapExists ? "1": "2"}
     activeKey={activeKey}
@@ -66,6 +77,9 @@ const [citationFormOpen, setCitationFormOpen ] = useState(false);
           {run?.doi && <>Cite: <Doi id={run?.doi}  /> </>}
           {mapExists && !run?.doi &&  <Button onClick={() => setCitationFormOpen(true)}>Cite</Button> }
           <Button style={{marginLeft: "10px"}} href={`${config.phylonextWebservice}/job/${params?.id}/archive.zip`}>Download results <DownloadOutlined /></Button>
+          <Popconfirm placement="bottomLeft" title={"Are you sure you want to delete this run? (Cannot be undone)"} onConfirm={() => deleteRun(params?.id)} okText="Yes" cancelText="No">
+          <Button style={{marginLeft: "8px"}} danger >Delete</Button>
+        </Popconfirm>
           </>
       }
     }

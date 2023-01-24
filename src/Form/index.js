@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Layout from "../Layout/Layout";
 import PageContent from "../Layout/PageContent";
 import country from "../Vocabularies/country.json"
+import basisOfRecord from "../Vocabularies/basisOfRecord.json"
 import _ from "lodash"
 import {
   Form,
@@ -11,6 +12,7 @@ import {
   Collapse,
   Typography,
   Checkbox,
+  Input
 } from "antd";
 import PhyloTreeInput from "../Components/PhyloTreeInput";
 import { useNavigate } from "react-router-dom";
@@ -64,7 +66,7 @@ const PhyloNextForm = ({setStep, preparedTrees, user, logout}) => {
   };
   const getArraryData = (values) => {
 
-     return ["phylum", "classis", "order", "family", "country"].reduce((acc, curr) => {
+     return ["phylum", "classis", "order", "family", "genus", "country", "basisofrecordinclude", "basisofrecordexclude"].reduce((acc, curr) => {
      if(_.isArray(values[curr]) && values[curr].length > 0){
       acc[curr] = `"${values[curr].toString()}"`
      }
@@ -75,7 +77,7 @@ const PhyloNextForm = ({setStep, preparedTrees, user, logout}) => {
     //  alert(JSON.stringify(values))
     let nonEmptyFields = Object.fromEntries(
       Object.entries(values).filter(
-        ([k, v]) => v != null && !["boundingBox", "phylum", "classis", "order", "family", "country"].includes(k)
+        ([k, v]) => v != null && !["boundingBox", "phylum", "classis", "order", "family", "genus", "country"].includes(k)
       )
     );
     nonEmptyFields = {...nonEmptyFields, ...getArraryData(values)}
@@ -110,6 +112,7 @@ const PhyloNextForm = ({setStep, preparedTrees, user, logout}) => {
           onFinishFailed={onFinishFailed}
           labelWrap={true}
           initialValues={{
+            genus: [],
             family: [],
             order: [],
             classis: [],
@@ -119,6 +122,24 @@ const PhyloNextForm = ({setStep, preparedTrees, user, logout}) => {
           }}
         >
           <Collapse defaultActiveKey={"1"}>
+          <Panel header="Name and description" key="0">
+          <Form.Item
+           {...formItemLayout}
+          name="jobName"
+          label="Name"
+          extra={"You can give your pipeline run a name that will help you distinguish it (Optional)"}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+         {...formItemLayout}
+          name="jobDescription"
+          label="Description"
+          extra={"Further notes or information about the run (Optional)"}
+        >
+          <Input.TextArea />
+        </Form.Item>
+          </Panel>
             <Panel header="Phylogeny" key="1">
               <FormItem
                 {...formItemLayout}
@@ -210,8 +231,13 @@ const PhyloNextForm = ({setStep, preparedTrees, user, logout}) => {
               <FormItem {...formItemLayout} name="family" label="Family">
                 <TaxonAutoComplete rank="family" />
               </FormItem>
+              <FormItem {...formItemLayout} name="genus" label="Genus">
+                <TaxonAutoComplete rank="genus" />
+              </FormItem>
             </Panel>
             <Panel header="Spatial and temporal filters" key="3">
+           
+
               <FormItem {...formItemLayout} name="country" label="Country">
                 <Select 
                     mode="multiple" 
@@ -241,6 +267,29 @@ const PhyloNextForm = ({setStep, preparedTrees, user, logout}) => {
               </FormItem>
             </Panel>
             <Panel header="GBIF Occurrence filtering and aggregation" key="4">
+            <FormItem {...formItemLayout} name="basisofrecordinclude" label="Include BasisOfRecord">
+                <Select 
+                    mode="multiple" 
+                    allowClear 
+                    style={{width: "400px"}}
+                    >
+                  {basisOfRecord.map((i) => (
+                    <Option key={i}>{i}</Option>
+                  ))}
+                </Select>
+              </FormItem>
+
+              <FormItem {...formItemLayout} name="basisofrecordexclude" label="Exclude BasisOfRecord">
+                <Select 
+                    mode="multiple" 
+                    allowClear 
+                    style={{width: "400px"}}
+                    >
+                  {basisOfRecord.map((i) => (
+                    <Option key={i}>{i}</Option>
+                  ))}
+                </Select>
+              </FormItem>
             <Form.Item
                 {...formItemLayout}
                 name="terrestrial"

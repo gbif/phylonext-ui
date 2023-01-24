@@ -4,7 +4,7 @@ import { axiosWithAuth } from '../../Auth/userApi';
 import config from '../../config';
 // reset form fields when modal is form, closed
 
-const CitationForm = ({ open, onCancel, onFinish, jobid }) => {
+const CitationForm = ({ open, onCancel, onFinish, jobid, defaultValues }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [submissionError, setSubmissionError] = useState(null);
@@ -38,8 +38,9 @@ const CitationForm = ({ open, onCancel, onFinish, jobid }) => {
         >
 <Spin spinning={loading} delay={500}>
         {submissionError && <Alert type='error' description={submissionError?.response?.data} closable onClose={() => setSubmissionError(null)} />}
-      <Form form={form} layout="vertical" onFinish={submitData} onFinishFailed={onFinishFailed} name="citationform">
+      <Form form={form} layout="vertical" onFinish={submitData} onFinishFailed={onFinishFailed} name="citationform" >
         <Form.Item
+          initialValue={defaultValues?.jobName}
           name="title"
           label="Title"
           rules={[
@@ -51,6 +52,7 @@ const CitationForm = ({ open, onCancel, onFinish, jobid }) => {
           <Input />
         </Form.Item>
         <Form.Item
+          initialValue={defaultValues?.jobDescription}
           name="description"
           label="Description"
           rules={[
