@@ -15,14 +15,14 @@ const css = {
 const LeafletMap = ({value, onChange}) => {
 
 
-    return     <MapContainer style={css}  center={[0, 0]} zoom={1} scrollWheelZoom={false}>
+    return   <div style={{minWidth: "300px"}}> <MapContainer style={css}  center={[0, 0]} zoom={1} scrollWheelZoom={false}>
         <DrawTools value={value} onChange={onChange}/>
     <TileLayer
       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
     />
 
-  </MapContainer>
+  </MapContainer></div> 
 }
 
 export default LeafletMap;

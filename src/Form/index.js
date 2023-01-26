@@ -12,7 +12,10 @@ import {
   Collapse,
   Typography,
   Checkbox,
-  Input
+  Input,
+  Tabs,
+  Row,
+  Col
 } from "antd";
 import PhyloTreeInput from "../Components/PhyloTreeInput";
 import { useNavigate } from "react-router-dom";
@@ -23,6 +26,7 @@ import {axiosWithAuth} from "../Auth/userApi";
 import axios from "axios";
 import config from "../config";
 import Map from "./Map";
+import WGRPD from "./WGRPD"
 import withContext from "../Components/hoc/withContext";
 
 const { Text } = Typography;
@@ -39,6 +43,17 @@ const formItemLayout = {
     xs: { span: 24 },
     sm: { span: 16 },
   },
+};
+
+const mapComponentFormItemLayout = {
+  labelCol: {
+    xs: { span: 24 },
+    sm: { span: 24 },
+  },
+/*   wrapperCol: {
+    xs: { span: 24 },
+    sm: { span: 24 },
+  }, */
 };
 
 const PhyloNextForm = ({setStep, preparedTrees, user, logout}) => {
@@ -66,7 +81,7 @@ const PhyloNextForm = ({setStep, preparedTrees, user, logout}) => {
   };
   const getArraryData = (values) => {
 
-     return ["phylum", "classis", "order", "family", "genus", "country", "basisofrecordinclude", "basisofrecordexclude"].reduce((acc, curr) => {
+     return ["phylum", "classis", "order", "family", "genus", "country", "basisofrecordinclude", "basisofrecordexclude", "regions"].reduce((acc, curr) => {
      if(_.isArray(values[curr]) && values[curr].length > 0){
       acc[curr] = `"${values[curr].toString()}"`
      }
@@ -77,7 +92,7 @@ const PhyloNextForm = ({setStep, preparedTrees, user, logout}) => {
     //  alert(JSON.stringify(values))
     let nonEmptyFields = Object.fromEntries(
       Object.entries(values).filter(
-        ([k, v]) => v != null && !["boundingBox", "phylum", "classis", "order", "family", "genus", "country"].includes(k)
+        ([k, v]) => v != null && !["boundingBox", "phylum", "classis", "order", "family", "genus", "country", "basisofrecordinclude", "basisofrecordexclude", "regions"].includes(k)
       )
     );
     nonEmptyFields = {...nonEmptyFields, ...getArraryData(values)}
@@ -86,6 +101,9 @@ const PhyloNextForm = ({setStep, preparedTrees, user, logout}) => {
         ...nonEmptyFields,
         ...getCoords(values.boundingBox[0]),
       };
+    }
+    if(nonEmptyFields?.regions){
+      nonEmptyFields.wgsrpd = true
     }
     try {
       console.log(nonEmptyFields);
@@ -236,7 +254,14 @@ const PhyloNextForm = ({setStep, preparedTrees, user, logout}) => {
               </FormItem>
             </Panel>
             <Panel header="Spatial and temporal filters" key="3">
-           
+            <FormItem
+                {...formItemLayout}
+                name="minyear"
+                label="Min year"
+                extra="Minimum year of record's occurrences"
+              >
+                <InputNumber />
+              </FormItem>
 
               <FormItem {...formItemLayout} name="country" label="Country">
                 <Select 
@@ -253,18 +278,16 @@ const PhyloNextForm = ({setStep, preparedTrees, user, logout}) => {
                   ))}
                 </Select>
               </FormItem>
-              <FormItem {...formItemLayout} name="boundingBox" label="Area">
+             
+                <Tabs centered items={[
+                { label: 'Draw a rectangle on a map', key: 'item-1', children: <FormItem  {...formItemLayout}  name="boundingBox" label="Area">
                 <Map />
-              </FormItem>
-
-              <FormItem
-                {...formItemLayout}
-                name="minyear"
-                label="Min year"
-                extra="Minimum year of record's occurrences"
-              >
-                <InputNumber />
-              </FormItem>
+              </FormItem> }, // remember to pass the key prop
+                { label: 'Select WGSRPD regions', key: 'item-2', children: <FormItem  {...formItemLayout} name="regions" label="World Geographical Scheme for Recording Plant Distributions (WGSRPD)">
+                <WGRPD />
+              </FormItem>},
+              ]} />
+                
             </Panel>
             <Panel header="GBIF Occurrence filtering and aggregation" key="4">
             <FormItem {...formItemLayout} name="basisofrecordinclude" label="Include BasisOfRecord">
