@@ -28,7 +28,8 @@ const LeafletMap = ({ value, onChange }) => {
             let level1Data = await getLevel(1)
             let level2Data = await getLevel(2)
             level1Data.features.forEach(f => {
-                const phylonextKey = `L1_${f.properties[`LEVEL1_NAM`].replace(/[\s-]/g, "_").replace(/\./g, "")}}`;
+                const phylonextKey = `L1_${f.properties[`LEVEL1_NAM`].replace(/[\s-]/g, "_").replace(/\./g, "")}`;
+                console.log(phylonextKey)
                 f.properties.phylonextKey = phylonextKey
 
             })
@@ -92,7 +93,7 @@ const LeafletMap = ({ value, onChange }) => {
             }}>
             {(selectedLevel === 2 ? level2.features : level1.features).map((i) => {
                 const key = i.properties.phylonextKey;
-                console.log(key)
+               // console.log(key)
                 return <Option key={key}>{key}</Option>
             })}
         </Select>}
