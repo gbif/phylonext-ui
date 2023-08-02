@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Layout from "../Layout/Layout";
 import PageContent from "../Layout/PageContent";
-import { Popconfirm, Typography, Tabs, Button } from 'antd';
-import {DownloadOutlined} from "@ant-design/icons"
+import { Popconfirm, Typography, Tabs, Button, Row, Col } from 'antd';
+import {DownloadOutlined, InfoCircleOutlined} from "@ant-design/icons"
 import { Doi } from "../Components/Doi";
 import { useParams, useNavigate } from "react-router-dom";
 import config from "../config";
@@ -89,13 +89,13 @@ const navigate = useNavigate()
         label: `Map`,
         key: '1',
         disabled: !mapExists,
-        children: <Iframe url={`${config.phylonextWebservice}/job/${params?.id}/cloropleth.html`}
+        children: <><Row><Col flex="auto"></Col><Col><Button href="https://phylonext.github.io/biodiverse/#diversity-indices" target="_blank" type="link"><InfoCircleOutlined/> How to interpret this map</Button></Col></Row><Iframe url={`${config.phylonextWebservice}/job/${params?.id}/cloropleth.html`}
         width="100%"
         height="700px"
         id=""
         className=""
         display="block"
-        position="relative"/>,
+        position="relative"/></>,
       },
       {
         label: `Execution report`,

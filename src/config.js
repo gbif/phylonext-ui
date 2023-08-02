@@ -16,4 +16,4 @@ const prod = {
     authWebservice: 'https://phylonext.gbif.org/service/auth'
 }
 
-export default prod; //prod;
+export default prod;
