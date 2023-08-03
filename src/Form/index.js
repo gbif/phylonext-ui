@@ -16,9 +16,10 @@ import {
   Tabs,
   Row,
   Col,
-  Radio
+  Radio,
+  Upload
 } from "antd";
-import {InfoCircleOutlined} from "@ant-design/icons"
+import {InfoCircleOutlined, UploadOutlined} from "@ant-design/icons"
 import PhyloTreeInput from "../Components/PhyloTreeInput";
 import { useNavigate } from "react-router-dom";
 import biodiverseIndices from "../Vocabularies/BiodiverseIndices.json";
@@ -30,6 +31,7 @@ import config from "../config";
 import Map from "./Map";
 import WGRPD from "./WGRPD"
 import withContext from "../Components/hoc/withContext";
+import { polygon } from "leaflet";
 
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -67,6 +69,9 @@ const PhyloNextForm = ({ setStep, preparedTrees, user, logout }) => {
   const [form] = Form.useForm();
   const [h3resolution, setH3resolution] = useState(3);
   const [profiles, setProfiles] = useState({});
+  const [polygonFileList, setPolygonFileList] = useState([]);
+  const [randconstrainFileList, setRandconstrainFileList] = useState([]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -114,9 +119,7 @@ const PhyloNextForm = ({ setStep, preparedTrees, user, logout }) => {
 
     nonEmptyFields = { ...nonEmptyFields, ...getArraryData(values), ...profiles[values.profile] }
 
-    console.log(values.profile)
-    console.log(profiles)
-    console.log(nonEmptyFields)
+   
 
     if (values?.boundingBox?.[0]) {
       nonEmptyFields = {
@@ -128,6 +131,28 @@ const PhyloNextForm = ({ setStep, preparedTrees, user, logout }) => {
       nonEmptyFields.wgsrpd = true
     }
     try {
+      console.log(nonEmptyFields);
+      const formData = new FormData();
+      formData.append('data', JSON.stringify(nonEmptyFields))
+      if(polygonFileList.length >0){
+      formData.append('polygon', polygonFileList[0])
+      }
+      if(randconstrainFileList.length >0){
+        formData.append('randconstrain', randconstrainFileList[0])
+        }
+      setLoading(true);
+      const res = await axiosWithAuth.post(
+        `${config.phylonextWebservice}`,
+        formData
+      );
+      const jobid = res?.data?.jobid;
+      setStep(1)
+      navigate(`/run/${jobid}`);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+   /*  try {
       console.log(nonEmptyFields);
 
       setLoading(true);
@@ -141,7 +166,7 @@ const PhyloNextForm = ({ setStep, preparedTrees, user, logout }) => {
     } catch (error) {
       console.log(error);
       setLoading(false);
-    }
+    } */
   };
   return (
 
@@ -308,6 +333,32 @@ const PhyloNextForm = ({ setStep, preparedTrees, user, logout }) => {
               ))}
             </Select>
           </FormItem>
+
+          <Form.Item
+          {...formItemLayout}
+        name="polygon"
+        label="Polygon"
+        valuePropName="fileList"
+        getValueFromEvent={e => {console.log(e)}}
+        extra="For spatial filtering. A GeoPackage file (.gpkg)"
+      >
+        <Upload name="polygon"
+        accept=".gpkg"
+        onRemove={(file) => {
+          const index = polygonFileList.indexOf(file);
+          const newFileList = polygonFileList.slice();
+          newFileList.splice(index, 1);
+          setPolygonFileList(newFileList);
+        }} 
+        beforeUpload={(file) => {
+          setPolygonFileList([...polygonFileList, file]);
+          return false;
+        }} 
+        fileList={polygonFileList}
+        >
+          <Button icon={<UploadOutlined />} disabled={polygonFileList.length >0}>Click to select .gpkg file</Button>
+        </Upload>
+      </Form.Item>
 
           <Tabs centered items={[
             {
@@ -482,6 +533,31 @@ const PhyloNextForm = ({ setStep, preparedTrees, user, logout }) => {
           >
             <InputNumber max={1000} />
           </FormItem>
+          <Form.Item
+          {...formItemLayout}
+        name="randconstrain"
+        label="Rand Constrain"
+        valuePropName="fileList"
+        getValueFromEvent={e => {console.log(e)}}
+        extra={<><span>For spatially-constrained randomization. A GeoPackage file (.gpkg). Example:</span> <a href="https://github.com/vmikk/PhyloNext/raw/main/pipeline_data/ZoogeographicRegions.gpkg"> ZoogeographicRegions.gpkg</a></>}
+      >
+        <Upload name="randconstrain"
+        accept=".gpkg"
+        onRemove={(file) => {
+          const index = randconstrainFileList.indexOf(file);
+          const newFileList = randconstrainFileList.slice();
+          newFileList.splice(index, 1);
+          setRandconstrainFileList(newFileList);
+        }} 
+        beforeUpload={(file) => {
+          setRandconstrainFileList([...randconstrainFileList, file]);
+          return false;
+        }} 
+        fileList={randconstrainFileList}
+        >
+          <Button icon={<UploadOutlined />} disabled={randconstrainFileList.length >0}>Click to select .gpkg file</Button>
+        </Upload>
+      </Form.Item>
 
         </Panel>
       </Collapse>
