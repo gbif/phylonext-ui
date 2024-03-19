@@ -71,6 +71,7 @@ const PhyloNextForm = ({ setStep, preparedTrees, user, logout }) => {
   const [profiles, setProfiles] = useState({});
   const [polygonFileList, setPolygonFileList] = useState([]);
   const [randconstrainFileList, setRandconstrainFileList] = useState([]);
+  const [selectedPredefinedTree, setSelectedPredefinedTree] = useState(null);
 
   const navigate = useNavigate();
 
@@ -119,7 +120,13 @@ const PhyloNextForm = ({ setStep, preparedTrees, user, logout }) => {
 
     nonEmptyFields = { ...nonEmptyFields, ...getArraryData(values), ...profiles[values.profile] }
 
-   
+  // If a predefined tree is not selected, the tree will be automatically fetched from OpenTree
+  // Therefore, we need to set tree labels to `Latin`
+  const onPredefinedTreeChange = (value) => {
+    if (!value) {
+      form.setFieldsValue({ phylabels: "Latin" });
+    }
+  };
 
     if (values?.boundingBox?.[0]) {
       nonEmptyFields = {
@@ -210,6 +217,7 @@ const PhyloNextForm = ({ setStep, preparedTrees, user, logout }) => {
             {...formItemLayout}
             name="phylabels"
             label="Type of phylogenetic tree labels (OTT or Latin)"
+            extra={selectedPredefinedTree ? "" : "If a predefined phylogenetic tree is not selected, labels should be set to Latin."}
           >
             <Select allowClear>
               {["OTT", "Latin"].map((i) => (
@@ -269,7 +277,7 @@ const PhyloNextForm = ({ setStep, preparedTrees, user, logout }) => {
             label="Choose a predefined tree from OTL"
             extra={<span>The pipeline comes with <a href="https://github.com/vmikk/PhyloNext/tree/main/test_data/phy_trees" target="_blank">some predefined trees</a> trees from OTL</span>}
           >
-            <Select style={{ width: 400 }} allowClear>
+            <Select style={{ width: 400 }} allowClear onChange={onPredefinedTreeChange}>
               {preparedTrees.map(key => <Option key={key}>{key}</Option>)}
             </Select>
           </FormItem>
